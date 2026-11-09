@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Park Ease | Bill Calculator</title>
+<style>
+:root {
+  --green:#075b37;
+  --deep:#063d2b;
+  --gold:#f5d52e;
+  --ink:#17231d;
+  --line:#dce5dd;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:#eef3ef;
+  color:var(--ink);
+  font-family:Arial,Helvetica,sans-serif;
+}
+header {
+  background:linear-gradient(125deg,var(--deep),#087244);
+  color:white;
+  padding:25px 18px 28px;
+}
+.wrap { max-width:980px; margin:auto; }
+.brand { font-size:30px; font-weight:900; }
+.tag { font-size:14px; color:#dcefe4; margin-top:5px; }
+main {
+  max-width:980px;
+  margin:22px auto;
+  padding:0 14px 30px;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+}
+.panel {
+  background:white;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 5px 20px #1233220b;
+}
+h2 { font-size:18px; margin:0 0 16px; color:var(--deep); }
+.field { margin:13px 0; }
+.field label {
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+input,select {
+  width:100%;
+  padding:12px;
+  border:1px solid #cbd8ce;
+  border-radius:10px;
+  font-size:16px;
+  background:white;
+}
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.rate {
+  background:#f1f7f2;
+  border-radius:12px;
+  padding:12px;
+  margin:12px 0;
+  font-size:13px;
+  line-height:1.7;
+}
+.hint,.note {
+  font-size:12px;
+  color:#65736b;
+  line-height:1.5;
+  margin-top:8px;
+}
+.total {
+  background:var(--deep);
+  color:white;
+  border-radius:14px;
+  padding:18px;
+  margin-top:14px;
+}
+.total small { color:#cce4d4; }
+.total strong {
+  display:block;
+  font-size:34px;
+  margin-top:5px;
+}
+.rowline {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+  font-size:14px;
+}
+.rowline span:last-child {
+  font-weight:700;
+  text-align:right;
+}
+button {
+  border:0;
+  border-radius:11px;
+  padding:13px 16px;
+  font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+.primary {
+  background:var(--gold);
+  color:#183522;
+  width:100%;
+  margin-top:14px;
+}
+.secondary {
+  background:#e8f1eb;
+  color:var(--deep);
+  width:100%;
+  margin-top:9px;
+}
+.hidden { display:none!important; }
+
+@media(max-width:760px) {
+  main { grid-template-columns:1fr; margin-top:14px; }
+  .grid { grid-template-columns:1fr 1fr; }
+  .brand { font-size:26px; }
+}
+@media print {
+  body { background:white; }
+  header { padding:12px 18px; }
+  main { display:block; margin:10px auto; }
+  .input-panel,.actions,.noprint { display:none!important; }
+  .panel { box-shadow:none; border:0; }
+  .total { background:#eee; color:#111; }
+  .total small { color:#333; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">PARK EASE</div>
+    <div class="tag">Car Rental &amp; Driving Assistance · Coimbatore</div>
+  </div>
+</header>
+
+<main>
+<section class="panel input-panel">
+<h2>Trip Details</h2>
+
+<div class="field">
+<label for="service">Select Service</label>
+<select id="service" onchange="updateForm()">
+<option value="local">Local Travel — ₹20/km</option>
+<option value="oneway">Outstation One Way — ₹25/km</option>
+<option value="round">Outstation Round Trip — ₹22/km</option>
+<option value="rental">Self-drive Hatchback — ₹2,500 / 12 Hours</option>
+</select>
+</div>
+
+<div class="grid">
+<div class="field">
+<label for="customer">Customer Name</label>
+<input id="customer" placeholder="Customer name">
+</div>
+<div class="field">
+<label for="phone">Phone</label>
+<input id="phone" placeholder="Customer phone">
+</div>
+</div>
+
+<div class="grid" id="distanceFields">
+<div class="field">
+<label for="km">Billable Kilometres</label>
+<input id="km" type="number" min="0" value="10" oninput="calculate()">
+</div>
+<div class="field">
+<label for="waiting">Waiting Hours</label>
+<input id="waiting" type="number" min="0" step="0.5" value="0" oninput="calculate()">
+</div>
+</div>
+
+<div id="rentalFields" class="hidden">
+<div class="grid">
+<div class="field">
+<label for="hours">Rental Duration (Hours)</label>
+<input id="hours" type="number" min="1" value="12" oninput="calculate()">
+</div>
+<div class="field">
+<label for="rentalKm">Total Kilometres Driven</label>
+<input id="rentalKm" type="number" min="0" value="120" oninput="calculate()">
+</div>
+</div>
+
+<div class="field">
+<label for="extraRate">Extra Kilometre Rate (₹/km)</label>
+<input id="extraRate" type="number" min="0" value="12" oninput="calculate()">
+<div class="hint">Editable placeholder rate. Confirm the final rate before billing.</div>
+</div>
+
+<div class="rate">
+Package includes <b>120 km</b> for 12 hours.
+Additional time: <b>₹300/hour</b>.
+Fuel: Customer returns the vehicle with a full tank.
+</div>
+</div>
+
+<div class="field">
+<label for="other">Other Charges (₹)</label>
+<input id="other" type="number" min="0" value="0" oninput="calculate()">
+</div>
+
+<div class="rate" id="rateInfo">
+Local fare: ₹20/km · Waiting: ₹150/hour.
+</div>
+
+<div class="note">
+Security deposit of ₹5,000 is refundable and shown separately.
+Fuel is handled full-tank to full-tank for self-drive rentals.
+</div>
+</section>
+
+<section class="panel">
+<h2>Bill Summary</h2>
+
+<div class="rowline"><span>Service</span><span id="sService">Local Travel</span></div>
+<div class="rowline"><span>Base / Package Fare</span><span id="base">₹200</span></div>
+<div class="rowline"><span>Waiting / Extra Time</span><span id="timeCharge">₹0</span></div>
+<div class="rowline"><span>Extra Distance</span><span id="distanceCharge">₹0</span></div>
+<div class="rowline"><span>Other Charges</span><span id="otherCharge">₹0</span></div>
+
+<div class="total">
+<small>Estimated Amount Payable</small>
+<strong id="grand">₹200</strong>
+</div>
+
+<div class="rowline">
+<span>Refundable Security Deposit</span>
+<span id="deposit">Not applicable</span>
+</div>
+<div class="rowline">
+<span>Fuel</span>
+<span id="fuel">Not applicable</span>
+</div>
+
+<div class="actions">
+<button class="primary" onclick="window.print()">Print / Save as PDF</button>
+<button class="secondary" onclick="shareBill()">Share Bill Summary</button>
+</div>
+
+<div class="note noprint">
+Park Ease · 7373336756 / 9790866756<br>
+Confirm tolls, parking, taxes and additional charges before booking.
+</div>
+</section>
+</main>
+
+<script>
+const money = n => '₹' + (Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const val = id => Math.max(0,Number(document.getElementById(id).value)||0);
+let lastBill = '';
+
+function updateForm() {
+  const rental = document.getElementById('service').value === 'rental';
+  document.getElementById('distanceFields').classList.toggle('hidden',rental);
+  document.getElementById('rentalFields').classList.toggle('hidden',!rental);
+  calculate();
+}
+
+function calculate() {
+  const type = document.getElementById('service').value;
+  let base=0, time=0, dist=0;
+  let name='', fuel='Not applicable', deposit='Not applicable';
+  const other=val('other');
+
+  if(type==='local'||type==='oneway'||type==='round') {
+    const rate={local:20,oneway:25,round:22}[type];
+    name={local:'Local Travel',oneway:'Outstation One Way',round:'Outstation Round Trip'}[type];
+    base=val('km')*rate;
+    time=val('waiting')*150;
+    document.getElementById('rateInfo').textContent =
+      `Fare: ${money(rate)}/km · Waiting: ₹150/hour.`;
+  } else {
+    name='Self-drive Hatchback';
+    const hours=val('hours');
+    const km=val('rentalKm');
+    base=2500;
+    if(hours>12) time=Math.ceil(hours-12)*300;
+    dist=Math.max(0,km-120)*val('extraRate');
+    deposit=money(5000)+' (Refundable)';
+    fuel='Customer: Full Tank to Full Tank';
+    document.getElementById('rateInfo').textContent =
+      '₹2,500 includes 12 hours and 120 km. Extra hours: ₹300/hour.';
+  }
+
+  const total=base+time+dist+other;
+
+  document.getElementById('sService').textContent=name;
+  document.getElementById('base').textContent=money(base);
+  document.getElementById('timeCharge').textContent=money(time);
+  document.getElementById('distanceCharge').textContent=money(dist);
+  document.getElementById('otherCharge').textContent=money(other);
+  document.getElementById('grand').textContent=money(total);
+  document.getElementById('deposit').textContent=deposit;
+  document.getElementById('fuel').textContent=fuel;
+
+  lastBill=`PARK EASE — BILL ESTIMATE
+Service: ${name}
+Customer: ${document.getElementById('customer').value||'-'}
+Phone: ${document.getElementById('phone').value||'-'}
+Base/package: ${money(base)}
+Waiting/extra time: ${money(time)}
+Extra distance: ${money(dist)}
+Other charges: ${money(other)}
+TOTAL PAYABLE: ${money(total)}
+Security deposit: ${deposit}
+Fuel: ${fuel}
+Contact: 7373336756 / 9790866756`;
+}
+
+async function shareBill() {
+  calculate();
+  if(navigator.share) {
+    try {
+      await navigator.share({
+        title:'Park Ease Bill Estimate',
+        text:lastBill
+      });
+    } catch(e) {}
+  } else if(navigator.clipboard) {
+    await navigator.clipboard.writeText(lastBill);
+    alert('Bill copied. You can paste it into WhatsApp.');
+  } else {
+    alert(lastBill);
+  }
+}
+
+document.querySelectorAll('input').forEach(el =>
+  el.addEventListener('input',calculate)
+);
+calculate();
+</script>
+</body>
+</html>
